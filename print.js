@@ -91,6 +91,9 @@ function print() {
     console.log('[')
     for (s of sword) {
         console.log('[', ...(s.map((s, i) => {
+            // if (s == 0) {
+            //     s = " "
+            // }
             if (i === 0) {
                 return s
             } else {
