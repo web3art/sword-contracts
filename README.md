@@ -1,5 +1,5 @@
 # web3 sword
-The first ethereal decentralized digital sword
+The first ethereum decentralized digital sword
 
 ```bash
               1 1              
