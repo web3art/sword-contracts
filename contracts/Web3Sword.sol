@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import { IMetadata } from './Web3SwordMetadata.sol';
+import {IMetadata} from "./Web3SwordMetadata.sol";
 
 // [
 // [0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0],
@@ -81,7 +81,6 @@ contract Web3Sword is
     }
 
     mapping(uint256 => SwordBlock) public blockById;
-    mapping(uint8 => uint256) public latestClaimTokenByType;
 
     // mint = 1
     // marketing = 2
@@ -89,12 +88,12 @@ contract Web3Sword is
     // thirdparty = 4
     // airdrop = 5
     // twitter = 6
-    uint8 constant private mint = 1;
-    uint8 constant private marketing = 2;
-    uint8 constant private lucky = 3;
-    uint8 constant private thirdparty = 4;
-    uint8 constant private airdrop = 5;
-    uint8 constant private twitter = 6;
+    uint8 private constant mint = 1;
+    uint8 private constant marketing = 2;
+    uint8 private constant lucky = 3;
+    uint8 private constant thirdparty = 4;
+    uint8 private constant airdrop = 5;
+    uint8 private constant tweets = 6;
 
     bool fullyMint;
 
@@ -108,14 +107,18 @@ contract Web3Sword is
     event SocialClaimSuccess(address indexed claimer, uint256 tokenId, uint8 t);
     event Withdrawal(address indexed, uint256 value);
     event ResetPrice(uint256 newPrice);
+    event SelledCountUpdate(uint256 value);
+
+    uint256 public selledCount;
 
     function initialize(IMetadata _metadataGenertaor) public initializer {
         __ERC1155_init("");
         __Ownable_init();
         __UUPSUpgradeable_init();
         fullyMint = false;
+        selledCount = 0;
         metadataGenerator = _metadataGenertaor;
-        currentPrice = 15 * 10 ** 16;
+        currentPrice = 15 * 10**16;
         swordMatrix.push([0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0]);
         swordMatrix.push([0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0]);
         swordMatrix.push([0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]);
@@ -173,9 +176,9 @@ contract Web3Sword is
     }
 
     function buy(uint256 tokenId) public payable {
-        require(msg.value >= currentPrice, "You don't have enough money");
+        require(msg.value >= currentPrice, "Price has expired, please try again");
         _mint(_msgSender(), tokenId, mint);
-        currentPrice = currentPrice * 2 / 100;
+        currentPrice = (currentPrice * 2) / 100;
         emit BuySuccess(_msgSender(), tokenId, msg.value);
     }
 
@@ -185,82 +188,129 @@ contract Web3Sword is
         emit ResetPrice(currentPrice);
     }
 
-    function _getNextSocialTokenId(uint8 t) internal view returns(uint256) {
-        uint256 latestTokenId = latestClaimTokenByType[t];
-        if (latestTokenId == 0) {
-            for (uint256 i = 0; i < swordMatrix.length; i++) {
-                uint8[] memory row = swordMatrix[i];
-                for (uint256 j = 0; j < row.length; j++) {
-                    if (swordMatrix[i][j] == t) {
-                        return _computeTokenId(j + 1, i + 1);
-                    }
+    // claim
+    function socialClaim(
+        address to,
+        uint256 tokenId,
+        uint8 t
+    ) public onlyOwner {
+        _mint(to, tokenId, t);
+        emit SocialClaimSuccess(to, tokenId, t);
+    }
+
+    // Get the number of tokenId that social can claim
+    // Airdrop: 9-100, step: 4
+    // Tweets: 0-99, step: 3
+    // Lucky: 1-90, step: 12
+    function socialCanClaimTokenIds(uint8 t)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        uint256 start = 0;
+        uint256 end = 0;
+        uint256 step = 0;
+        uint256 totalToSell = 210;
+        if (t == airdrop) {
+            start = (totalToSell * 9) / 100;
+            end = (totalToSell * 100) / 100;
+            step = (totalToSell * 4) / 100;
+        } else if (t == tweets) {
+            start = 0;
+            end = (totalToSell * 99) / 100;
+            step = (totalToSell * 3) / 100;
+        } else if (t == lucky) {
+            start = (totalToSell * 1) / 100;
+            end = (totalToSell * 90) / 100;
+            step = (totalToSell * 12) / 100;
+        }
+        uint256 unlockCount = (selledCount - start) / step;
+        uint256 resultIndex = 0;
+        uint256[] memory result = new uint256[](unlockCount);
+        if (selledCount < start) {
+            return result;
+        }
+        if (unlockCount == 0) {
+            return result;
+        }
+        for (uint256 i = 0; i < swordMatrix.length; i++) {
+            uint8[] memory row = swordMatrix[i];
+            for (uint256 j = 0; j < row.length; j++) {
+                if (swordMatrix[i][j] != t) {
+                    continue;
                 }
+                if (unlockCount == 0) {
+                    return result;
+                }
+                uint256 tokenId = _computeTokenId(j + 1, i + 1);
+                if (blockById[tokenId].ownerAddress != address(0)) {
+                    unlockCount = unlockCount - 1;
+                    continue;
+                }
+                result[resultIndex] = tokenId;
+                resultIndex++;
+                unlockCount = unlockCount - 1;
             }
         }
-
-        (uint256 x, uint256 y) = _getXYPointFromTokenId(latestTokenId);
-        for (uint256 i = 0; i < swordMatrix.length; i++) {
-                uint8[] memory row = swordMatrix[i];
-                for (uint256 j = 0; j < row.length; j++) {
-                    if (
-                        i + 1 > y &&
-                        j + 1 > x &&
-                        swordMatrix[i][j] == t
-                    ) {
-                        return _computeTokenId(j + 1, i + 1);
-                    }
-                }
-        }
-
-        return 0;
+        return result;
     }
 
-    // claim
-    function socialClaim(address to, uint8 t) public onlyOwner {
-        uint256 nextTokenId = _getNextSocialTokenId(t);
-        require(nextTokenId != 0, "No more token to claim");
-        _mint(to, nextTokenId, t);
-        latestClaimTokenByType[t] = nextTokenId;
-        emit SocialClaimSuccess(to, 1, t);
-    }
-
-    function _checktokenId(uint256 tokenId, uint8 t) internal view returns(bool) {
+    function _checktokenId(uint256 tokenId, uint8 t)
+        internal
+        view
+        returns (bool)
+    {
         (uint256 x, uint256 y) = _getXYPointFromTokenId(tokenId);
         return swordMatrix[y - 1][x - 1] == t;
     }
 
-    function _getXYPointFromTokenId(uint256 tokenId) internal pure returns(uint256, uint256) {
+    function _getXYPointFromTokenId(uint256 tokenId)
+        internal
+        pure
+        returns (uint256, uint256)
+    {
         uint256 y = tokenId % 10000;
         uint256 x = (tokenId - y) / 10000;
-        return (
-            x,
-            y
-        );
+        return (x, y);
     }
 
-    function _computeTokenId(uint256 x, uint256 y) internal pure returns(uint256) {
+    function _computeTokenId(uint256 x, uint256 y)
+        internal
+        pure
+        returns (uint256)
+    {
         return x * 10000 + y;
     }
 
-    function _mint(address to, uint256 id, uint8 t) internal {
-        require(blockById[id].ownerAddress == address(0), "This block is already owned");
+    function _mint(
+        address to,
+        uint256 id,
+        uint8 t
+    ) internal {
+        require(
+            blockById[id].ownerAddress == address(0),
+            "This block is already owned"
+        );
         require(_checktokenId(id, t), "This block is not of this type");
         _tokenIdCounter.increment();
-        SwordBlock memory b = SwordBlock(
-            id,
-            to,
-            "",
-            _tokenIdCounter.current()
-        );
+        SwordBlock memory b = SwordBlock(id, to, "", _tokenIdCounter.current());
         blockById[id] = b;
         ERC1155Upgradeable._mint(to, id, 1, abi.encodePacked(t));
+
+        if (t == mint) {
+            selledCount++;
+            emit SelledCountUpdate(selledCount);
+        }
     }
 
     // Upload new imguri
-    function upload(uint256 tokenId, string memory uri) public {
+    function upload(uint256 tokenId, string memory _uri) public {
         SwordBlock memory b = blockById[tokenId];
-        require(b.ownerAddress == _msgSender(), "You are not the owner of this block");
-        b.imgURL = uri;
+        require(
+            b.ownerAddress == _msgSender(),
+            "You are not the owner of this block"
+        );
+        b.imgURL = _uri;
         blockById[tokenId] = b;
         string memory metadataURI = generateMetadataURI(tokenId);
         emit URI(metadataURI, tokenId);
@@ -278,17 +328,23 @@ contract Web3Sword is
         return metadataGenerator.name();
     }
 
-    function generateMetadataURI(uint256 id) internal view returns (string memory) {
+    function generateMetadataURI(uint256 id)
+        internal
+        view
+        returns (string memory)
+    {
         SwordBlock memory b = blockById[id];
         require(b.tokenId > 0, "This block is not owned");
         return metadataGenerator.tokenMetadata(b.tokenId, b.number, b.imgURL);
+    }
+
+    function uri(uint256 id) public view override returns (string memory) {
+        return generateMetadataURI(id);
     }
 
     function _authorizeUpgrade(address newImplementation)
         internal
         override
         onlyOwner
-    {
-        
-    }
+    {}
 }

@@ -13,7 +13,7 @@ module.exports = {
     develop: {
       host: "127.0.0.1",
       port: 8545,          
-      gasPrice: 55000000000,
+      gasPrice: 33000000000,
       gas: 6721975,
       confirmations: 0,
       network_id: "*",
@@ -30,7 +30,7 @@ module.exports = {
 
     // polygon test network
     mumbai: {
-      provider: () => new HDWalletProvider(mnemonic, `https://bor-rpc-fast-mumbai.melandworld.com`),
+      provider: () => new HDWalletProvider(mnemonic, `http://bor-rpc-fast-mumbai.melandworld.com`),
       network_id: 80001,
       confirmations: 2,
       timeoutBlocks: 200,

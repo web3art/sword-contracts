@@ -2,15 +2,15 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x758D4CaA1782241160C5Aa6a9f9b5531f3eE4579",
-      "txHash": "0x45a2f0129a2385fa2917d48fe69bcd3278fca5782c701ecf548eb9d0f0c6d978",
+      "address": "0x14e438b4B95269f37CDCfa5d4c6B0920F840eA72",
+      "txHash": "0x82b098741f439881d413ca80068353b7eb702533f37dd1f6700442dabb1b5c1b",
       "kind": "uups"
     }
   ],
   "impls": {
-    "3167d383f82b8b638b14a5457823bbd9938827dc76a247dee4a6ab85a1ce7d77": {
-      "address": "0x6C965a6573Bc41C0541B758227531C35f8941Ee9",
-      "txHash": "0xb00083136e9869e851909fc8c3050edcd8ea689a000cf94668b1ba1dbbd380cd",
+    "3e933d32cbcff24921d5f0499e40ea6599bf3796ec6b37df744dd5c2f56799de": {
+      "address": "0xAD98305E9A818e2EF1867c9615d1b7B58f8b9E30",
+      "txHash": "0x931667890eb427bfa4ca8315ccab5c7a6265bf6683d0a0ee5a5ea1f9af4de467",
       "layout": {
         "storage": [
           {
@@ -87,38 +87,86 @@
           },
           {
             "contract": "Web3Sword",
-            "label": "numberById",
-            "type": "t_mapping(t_uint256,t_uint256)",
-            "src": "../project:/contracts/Migrations.sol:20"
+            "label": "_tokenIdCounter",
+            "type": "t_struct(Counter)2462_storage",
+            "src": "../project:/contracts/Web3Sword.sol:74"
           },
           {
             "contract": "Web3Sword",
-            "label": "imgURLById",
-            "type": "t_mapping(t_uint256,t_string_storage)",
-            "src": "../project:/contracts/Migrations.sol:20"
+            "label": "blockById",
+            "type": "t_mapping(t_uint256,t_struct(SwordBlock)5728_storage)",
+            "src": "../project:/contracts/Web3Sword.sol:83"
           },
           {
             "contract": "Web3Sword",
             "label": "fullyMint",
             "type": "t_bool",
-            "src": "../project:/contracts/Migrations.sol:20"
+            "src": "../project:/contracts/Web3Sword.sol:98"
+          },
+          {
+            "contract": "Web3Sword",
+            "label": "currentPrice",
+            "type": "t_uint256",
+            "src": "../project:/contracts/Web3Sword.sol:100"
           },
           {
             "contract": "Web3Sword",
             "label": "swordMatrix",
             "type": "t_array(t_array(t_uint8)dyn_storage)dyn_storage",
-            "src": "../project:/contracts/Migrations.sol:20"
+            "src": "../project:/contracts/Web3Sword.sol:102"
+          },
+          {
+            "contract": "Web3Sword",
+            "label": "metadataGenerator",
+            "type": "t_contract(IMetadata)7683",
+            "src": "../project:/contracts/Web3Sword.sol:104"
+          },
+          {
+            "contract": "Web3Sword",
+            "label": "selledCount",
+            "type": "t_uint256",
+            "src": "../project:/contracts/Web3Sword.sol:112"
           }
         ],
         "types": {
-          "t_mapping(t_uint256,t_uint256)": {
-            "label": "mapping(uint256 => uint256)"
+          "t_struct(Counter)2462_storage": {
+            "label": "struct CountersUpgradeable.Counter",
+            "members": [
+              {
+                "label": "_value",
+                "type": "t_uint256"
+              }
+            ]
           },
           "t_uint256": {
             "label": "uint256"
           },
-          "t_mapping(t_uint256,t_string_storage)": {
-            "label": "mapping(uint256 => string)"
+          "t_mapping(t_uint256,t_struct(SwordBlock)5728_storage)": {
+            "label": "mapping(uint256 => struct Web3Sword.SwordBlock)"
+          },
+          "t_struct(SwordBlock)5728_storage": {
+            "label": "struct Web3Sword.SwordBlock",
+            "members": [
+              {
+                "label": "tokenId",
+                "type": "t_uint256"
+              },
+              {
+                "label": "ownerAddress",
+                "type": "t_address"
+              },
+              {
+                "label": "imgURL",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "number",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_address": {
+            "label": "address"
           },
           "t_string_storage": {
             "label": "string"
@@ -135,11 +183,11 @@
           "t_uint8": {
             "label": "uint8"
           },
+          "t_contract(IMetadata)7683": {
+            "label": "contract IMetadata"
+          },
           "t_array(t_uint256)50_storage": {
             "label": "uint256[50]"
-          },
-          "t_address": {
-            "label": "address"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]"

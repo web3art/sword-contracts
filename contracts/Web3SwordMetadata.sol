@@ -88,7 +88,6 @@ contract SwordMetadata is IMetadata {
         string value;
     }
 
-    using ABDKMath64x64 for int128;
     using Base64 for string;
     using Strings for uint256;
 
@@ -168,8 +167,8 @@ contract SwordMetadata is IMetadata {
             false,
             true,
             false,
-            "",
-            "Mass",
+            "number",
+            "NO.",
             tokenNumber.toString()
         );
         return metadataAttributes;
@@ -335,31 +334,6 @@ contract SwordMetadata is IMetadata {
     {
         return (keccak256(abi.encodePacked((a))) ==
             keccak256(abi.encodePacked((b))));
-    }
-
-    function _floatToString(int128 value) private pure returns (string memory) {
-        uint256 decimal4 = (value & 0xFFFFFFFFFFFFFFFF).mulu(10000);
-        return
-            string(
-                abi.encodePacked(
-                    uint256(int256(value.toInt())).toString(),
-                    ".",
-                    _decimal4ToString(decimal4)
-                )
-            );
-    }
-
-    function _decimal4ToString(uint256 decimal4)
-        private
-        pure
-        returns (string memory)
-    {
-        bytes memory decimal4Characters = new bytes(4);
-        for (uint256 i = 0; i < 4; i++) {
-            decimal4Characters[3 - i] = bytes1(uint8(0x30 + (decimal4 % 10)));
-            decimal4 /= 10;
-        }
-        return string(abi.encodePacked(decimal4Characters));
     }
 
     function _requireOnlyOwner() private view {

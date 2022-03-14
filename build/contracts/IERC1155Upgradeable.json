@@ -312,7 +312,7 @@
         2003
       ],
       "IERC165Upgradeable": [
-        2572
+        2646
       ]
     },
     "id": 2004,
@@ -337,7 +337,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 2004,
-        "sourceUnit": 2573,
+        "sourceUnit": 2647,
         "src": "120:58:8",
         "symbolAliases": [],
         "unitAlias": ""
@@ -350,7 +350,7 @@
               "id": 1886,
               "name": "IERC165Upgradeable",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 2572,
+              "referencedDeclaration": 2646,
               "src": "379:18:8"
             },
             "id": 1887,
@@ -371,7 +371,7 @@
         "id": 2003,
         "linearizedBaseContracts": [
           2003,
-          2572
+          2646
         ],
         "name": "IERC1155Upgradeable",
         "nameLocation": "356:19:8",
@@ -1750,7 +1750,7 @@
         2003
       ],
       "IERC165Upgradeable": [
-        2572
+        2646
       ]
     },
     "id": 2004,
@@ -1775,7 +1775,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 2004,
-        "sourceUnit": 2573,
+        "sourceUnit": 2647,
         "src": "120:58:8",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1788,7 +1788,7 @@
               "id": 1886,
               "name": "IERC165Upgradeable",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 2572,
+              "referencedDeclaration": 2646,
               "src": "379:18:8"
             },
             "id": 1887,
@@ -1809,7 +1809,7 @@
         "id": 2003,
         "linearizedBaseContracts": [
           2003,
-          2572
+          2646
         ],
         "name": "IERC1155Upgradeable",
         "nameLocation": "356:19:8",
@@ -3187,7 +3187,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.5",
-  "updatedAt": "2022-03-06T16:42:21.255Z",
+  "updatedAt": "2022-03-14T11:29:10.983Z",
   "devdoc": {
     "details": "Required interface of an ERC1155 compliant contract, as defined in the https://eips.ethereum.org/EIPS/eip-1155[EIP]. _Available since v3.1._",
     "events": {
